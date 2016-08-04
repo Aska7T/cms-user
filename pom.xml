@@ -2,24 +2,29 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.ttw.cms</groupId>
   <artifactId>cms-user</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>cms-user</name>
-  <url>http://maven.apache.org</url>
+	<parent>
+		<groupId>org.ttw.cms</groupId>
+		<artifactId>cms-parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../cms-parent/pom.xml</relativePath>
+	</parent>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+  <name>cms-user</name>
+
 
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>cms-core</artifactId>
+				<version>${project.version}</version>
+			</dependency>
   </dependencies>
 </project>
