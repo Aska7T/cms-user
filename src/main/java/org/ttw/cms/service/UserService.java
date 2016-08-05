@@ -54,12 +54,27 @@ public class UserService implements IUserService {
 		User tu = userDao.loadByUsername(user.getUsername());
 		if(tu!=null)throw new CmsException("添加的对象已经存在，不能添加");
 		userDao.add(user);
+		//添加角色对象
+		for(Integer rid:rids){
+			//1.检查角色对象是否存在，如果不存在，就抛出异常
+			Role role=roleDao.load(rid);
+			if(role==null) throw new CmsException("要添加的用户角色不存在");
+			//2.检查用户角色对象是否存在，如果存在不添加
+			userDao.addUserRole(user,role);
+		}
+		//添加用户组对象
+		for(Integer gid:gids){
+			Group group=groupDao.load(gid);
+			if(group==null) throw new CmsException("要添加的组不存在");
+			userDao.addUserGroup(user,group);
+		}
 	}
 
 	@Override
 	public void delete(int id) {
-		// TODO Auto-generated method stub
-
+		//1.删除用户管理的角色对象
+		
+		//2.删除用户管理的组对象
 	}
 
 	@Override
