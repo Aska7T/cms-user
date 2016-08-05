@@ -72,9 +72,13 @@ public class UserService implements IUserService {
 
 	@Override
 	public void delete(int id) {
-		//1.删除用户管理的角色对象
+		//TODO 需要进行用户是否有文章的判断
 		
+		//1.删除用户管理的角色对象
+		userDao.deleteUserGroups(id);
 		//2.删除用户管理的组对象
+		userDao.deleteUserRoles(id);
+		userDao.delete(id);
 	}
 
 	@Override
