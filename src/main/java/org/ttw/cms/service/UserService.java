@@ -4,7 +4,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Service;
+import org.ttw.basic.model.Pager;
 import org.ttw.cms.dao.IGroupDao;
 import org.ttw.cms.dao.IRoleDao;
 import org.ttw.cms.dao.IUserDao;
@@ -49,6 +51,29 @@ public class UserService implements IUserService {
 		this.groupDao = groupDao;
 	}
 
+	/**
+	 * //添加角色对象
+	 * @param user
+	 * @param rid
+	 */
+	private void addUserRole(User user,int rid) {
+		//1.检查角色对象是否存在，如果不存在，就抛出异常
+		Role role=roleDao.load(rid);
+		if(role==null) throw new CmsException("要添加的用户角色不存在");
+		//2.检查用户角色对象是否存在，如果存在不添加
+		userDao.addUserRole(user,role);
+	}
+	/**
+	 * //添加用户组对象
+	 * @param user
+	 * @param gid
+	 */
+	private void addUserGroup(User user,int gid){
+		Group group=groupDao.load(gid);
+		if(group==null) throw new CmsException("要添加的组不存在");
+		userDao.addUserGroup(user,group);
+	}
+	
 	@Override
 	public void add(User user, Integer[] rids, Integer[] gids) {
 		User tu = userDao.loadByUsername(user.getUsername());
@@ -56,17 +81,11 @@ public class UserService implements IUserService {
 		userDao.add(user);
 		//添加角色对象
 		for(Integer rid:rids){
-			//1.检查角色对象是否存在，如果不存在，就抛出异常
-			Role role=roleDao.load(rid);
-			if(role==null) throw new CmsException("要添加的用户角色不存在");
-			//2.检查用户角色对象是否存在，如果存在不添加
-			userDao.addUserRole(user,role);
+			this.addUserRole(user,rid);
 		}
 		//添加用户组对象
 		for(Integer gid:gids){
-			Group group=groupDao.load(gid);
-			if(group==null) throw new CmsException("要添加的组不存在");
-			userDao.addUserGroup(user,group);
+			this.addUserGroup(user,gid);
 		}
 	}
 
@@ -83,38 +102,60 @@ public class UserService implements IUserService {
 
 	@Override
 	public void update(User user, Integer[] rids, Integer[] gids) {
-		// TODO Auto-generated method stub
-
+		//1.获取用户已经存在的组id和角色id
+		List<Integer> erids=userDao.listUserRoleIds(user.getId());
+		List<Integer> egids=userDao.listUserGroupIds(user.getId());
+		//2.判断，如果erids不存在rids就要进行添加
+		for(Integer rid:rids){
+			if(!erids.contains(rid)){
+				this.addUserRole(user,rid);
+			}
+		}
+		for(Integer gid:gids){
+			if(!egids.contains(gid)){
+				this.addUserGroup(user,gid);
+			}
+		}
+		//3.进行删除
+		for(Integer erid:erids){
+			if(!ArrayUtils.contains(rids,erid)){
+				userDao.deleteUserRole(user.getId(),erid);
+			}
+		}
+		for(Integer egid:egids){
+			if(!ArrayUtils.contains(gids,egid)){
+				userDao.deleteUserGroup(user.getId(),egid);
+			}
+		}
 	}
 
 	@Override
 	public void updateStatus(int id) {
-		// TODO Auto-generated method stub
-
+		User u = userDao.load(id);
+		if(u==null) throw new CmsException("修改状态的用户不存在");
+		if(u.getStatus()==0) u.setStatus(1);
+		else u.setStatus(0);
+		userDao.update(u);
 	}
 
 	@Override
-	public void findUser() {
-		// TODO Auto-generated method stub
-
+	public Pager<User> findUser() {
+		return userDao.findUser();
 	}
 
 	@Override
 	public User load(int id) {
-		// TODO Auto-generated method stub
-		return null;
+		return userDao.load(id);
 	}
 
 	@Override
 	public List<Role> listUserRoles(int id) {
-		// TODO Auto-generated method stub
-		return null;
+		return userDao.listUserRoles(id);
 	}
 
 	@Override
 	public List<Group> listUserGroups(int id) {
-		// TODO Auto-generated method stub
-		return null;
+		return userDao.listUserGroups(id);
 	}
 
 }

@@ -2,6 +2,7 @@ package org.ttw.cms.service;
 
 import java.util.List;
 
+import org.ttw.basic.model.Pager;
 import org.ttw.cms.model.Group;
 import org.ttw.cms.model.Role;
 import org.ttw.cms.model.User;
@@ -37,7 +38,7 @@ public interface IUserService {
 	/**
 	 * 列表用户
 	 */
-	public void findUser();
+	public Pager<User> findUser();
 	/**
 	 * 获取用户信息
 	 * @param id
